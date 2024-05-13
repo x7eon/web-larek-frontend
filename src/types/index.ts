@@ -1,158 +1,82 @@
-// Алиасы простых типов для товара
-export type productId = string;
-export type productTitle = string;
-export type productImg = string;
-export type productPrice = number | null;
-export type productDesc = string;
-export type cartState = boolean;
-export type productCanBuy = boolean;
-export type productSerialNumber = number;
+// тип ключей категорий
+export type categoryKey =
+	| 'софт-скил'
+	| 'другое'
+	| 'дополнительное'
+	| 'кнопка'
+	| 'хард-скил';
 
-// перечисляемый тип, описывающий возможные категории товара
-export enum productCategory {
-  soft = 'софт-скил',
-  other = 'другое',
-  additional = 'дополнительное',
-  button = 'кнопка',
-  hard = 'хард-скил'
-}
+// объект категорий с явным типом
+export const productCategory: { [key in categoryKey]: string } = {
+	'софт-скил': 'soft',
+	другое: 'other',
+	дополнительное: 'additional',
+	кнопка: 'button',
+	'хард-скил': 'hard',
+};
 
 // интерфейс, описывающий товар
 export interface IProduct {
-  id: productId;
-  category: string;
-  title: productTitle;
-  image: productImg;
-  price: productPrice;
-  description: productDesc;
-  cartState?: cartState;
-  canBuy?: productCanBuy;
-  serialNumber?: productSerialNumber | null;
+	id: string;
+	category: string;
+	title: string;
+	image: string;
+	price: number | null;
+	description: string;
 }
 
-// интерфейс, описывающий товар в приложении, расширяет итерфейс товара
-export interface IProductApp extends IProduct {
-  cartState: cartState; // есть в корзине? 
-  canBuy: productCanBuy; // доступен для покупки? для отключения возможности купить товар с ценной = "Бесценно"
-  serialNumber: productSerialNumber | null; // для порядкового номера в корзине
-
-  setCartState(product: IProduct): cartState;
-  setCanBuy(product: IProduct): productCanBuy;
-  setSerialNumber(product: IProduct): productSerialNumber;
+// интерфейс, описывающий элемнт товара в корзине
+export interface IProductCart {
+	id: string;
+	price: number;
+	title: string;
 }
 
-// class Obj implements IProduct {
+// тип описывающий возможные методы оплаты
+export type paymentMethod = 'card' | 'cash';
 
-//   id: productId;
-//   category: productCategory;
-//   title: productTitle;
-//   image: productImg;
-//   price: productPrice;
-//   description: productDesc;
-//   isCart: isCart; // есть в корзине? 
-//   canBuy: productCanBuy; // доступен для покупки? для отключения возможности купить товар с ценной = "Бесценно"
-//   serialNumber: productSerialNumber | null; // для порядкового номера в корзине
-
-//   constructor(product: IProduct) {
-//     this.id = product.id;
-//     this.category = product.category;
-//     this.title = product.title;
-//     this.price = product.price;
-//     this.description = product.description;
-//   }
-//   setIsCart(product: IProduct): isCart {
-//     return this.isCart = false;
-//   };
-//   setCanBuy(product: IProduct): productCanBuy {
-//     if(this.price === null) {
-//       return this.canBuy = false;
-//     }
-//     return this.canBuy = true;
-//   };
-//   setSerialNumber(product: IProduct): productSerialNumber {
-//     return this.serialNumber = 0;
-//   };
-// }
-
-// интерфейс, описывающий каталог товаров
-export interface IProductsData {
-  productsList: IProduct[];
-  preview: productId | null;
-
-  getProduct(id: productId): IProduct;
-  toogleIsCart(id: productId): void; // переключение состояния 'Купить' | 'Убрать из корзины'
+// интерфейс, описывающий состояние формы
+export interface IFormState {
+	valid: boolean;
+	errors: string[];
 }
 
-// интерфейс, описывающий корзину
-export interface ICartData {
-  productsList: TProductCart[];
-  totalPrice: number;
-
-  addProduct(productId: productId): TProductCart[];
-  delProduct(productId: productId): TProductCart[];
-  resetCart(): void;
-  getProductList(): TProductCart[];
-  setTotalPrice(products: TProductCart[]): number; 
-  getTotalPrice(products: TProductCart[]): number;   
+// интерфейс, описывающий форму со способом оплаты. Расширяет IFormState
+export interface IPaymentForm extends IFormState {
+	payment: paymentMethod;
+	address: string;
+	render: (state: Partial<IPaymentForm> & IFormState) => HTMLElement;
 }
 
-// Алиасы простых типов для заказа
-export type orderPaymentMethod = 'online' | 'cash'; // тип, описывающий метод оплаты
-export type orderAddress = string;
-export type orderEmail = string;
-export type orderPhone = string;
-export type orderTotalPrice = number;
-export type orderItems = string[];
-
-// интерфейс, описывающий заказ
-export interface IOrder {
-  payment: orderPaymentMethod;
-  address: orderAddress;
-  email: orderEmail;
-  phone: orderPhone;
-  total: orderTotalPrice;
-  items: orderItems;
+// интерфейс, описывающий форму с контактами пользователя. Расширяет IFormState
+export interface IContactsForm extends IFormState {
+	email: string;
+	phone: string;
+	render: (state: Partial<IContactsForm> & IFormState) => HTMLElement;
 }
 
-// интерфейс, описывающий данные заказа и логику работы с ними
-export interface IOrderData extends IOrder {
-  setOrderInfo(orderData: IOrderData): void;
-  getOrderInfo(): IOrder;
-  checkValidation(data: Record<keyof TOrderPaymentAndAdress & TOrderEmailAndPhone, string>): boolean;
-  resetOrder(order: IOrder): void;
+// интерфейс, описывающий данные товаров в заказе
+export interface IOrderProducts {
+	total: number;
+	items: string[];
 }
 
-// тип, описывающий товар в каталоге на главной
-export type TProductCatalog = Pick<IProduct, 'category' | 'title' | 'image' | 'price'>;
-
-// тип, описывающий товар в модальном окне товара
-export type TProductModal = Pick<IProduct, 'category' | 'title' | 'description' | 'image' | 'price' | 'cartState' | 'canBuy'>;
-
-// тип, описывающий товар в модальном окне корзины
-export type TProductCart = Pick<IProduct, 'serialNumber' | 'title' | 'price'>;
-
-// тип, описывающий заказ в модальном окне с методом оплаты и адресом
-export type TOrderPaymentAndAdress = Pick<IOrder, 'payment' | 'address'>;
-
-// тип, описывающий заказ в модальном окне с почтой и телефоном
-export type TOrderEmailAndPhone = Pick<IOrder, 'email' | 'phone'>;
-
-// тип, описывающий заказ в модальном окне успешной покупки
-export type TOrderSuccess = Pick<IOrder, 'total'>;
-
-export interface IOrderSuccess {
-  id: string;
-  total: number;
+// интерфейс, описывающий данные пользователя в заказе
+export interface IOrderData extends IOrderProducts {
+	payment: paymentMethod;
+	address: string;
+	email: string;
+	phone: string;
 }
 
-export interface IOrderError {
-  error: string;
-}
+// тип, описывающий ошибки форм
+export type FormErrors = Partial<Record<keyof IOrderData, string>>;
 
-export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+// тип, описывающий состояние элемента кнопки
+export type ButtonState = 'Купить' | 'Убрать из корзины';
 
-export interface IApi {
-  baseUrl: string;
-  get<T>(uri: string): Promise<T>;
-  post<T>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
+// интерфейс данных успешного заказа, получаемого в ответе от сервера на post запрос
+export interface ISuccessOrder {
+	id: string;
+	total: number;
 }

@@ -1,19 +1,39 @@
-import { IApi, IOrder, IOrderSuccess, IOrderError, IProduct } from "../types";
+import { IOrderData, IProduct, ISuccessOrder } from '../types';
+import { Api } from './base/api';
 
-
-export class AppAPI {
-  private _baseApi: IApi;
-
-  constructor(baseApi: IApi) {
-    this._baseApi = baseApi;
-  }
-
-  getProductsList(): Promise<IProduct[]> {
-    return this._baseApi.get<IProduct[]>(`/product`).then((products: IProduct[]) => products);
-  }
-
-  postOrder(order: IOrder): Promise<IOrderSuccess | IOrderError> {
-    return this._baseApi.post<IOrderSuccess | IOrderError>(`/order`, order).then((orderResult: IOrderSuccess | IOrderError) => orderResult);
-  }
+export interface IAppAPI {
+	getProducts: () => Promise<IProduct[]>;
+	getProduct: (id: string) => Promise<IProduct>;
+	postOrder: (orderData: IOrderData) => Promise<ISuccessOrder>;
 }
 
+export class AppAPI extends Api implements IAppAPI {
+	readonly cdn: string;
+
+	constructor(cdn: string, baseUrl: string, options: RequestInit = {}) {
+		super(baseUrl, options);
+		this.cdn = cdn;
+	}
+
+	getProducts(): Promise<IProduct[]> {
+		return this.get('/product').then(
+			(response: { total: number; items: IProduct[] }) => {
+				return response.items.map((product) => ({
+					...product,
+					image: this.cdn + product.image,
+				}));
+			}
+		);
+	}
+
+	getProduct(id: string): Promise<IProduct> {
+		return this.get(`/product/${id}`).then((data: IProduct) => ({
+			...data,
+			image: this.cdn + data.image,
+		}));
+	}
+
+	postOrder(order: IOrderData): Promise<ISuccessOrder> {
+		return this.post('/order', order).then((data: ISuccessOrder) => data);
+	}
+}

@@ -1,151 +1,116 @@
-import { AppAPI } from './components/AppAPI';
-import { CartData } from './components/CartData';
-import { OrderData } from './components/OrderData';
-import { ProductsData } from './components/ProductsData';
-import { Api } from './components/base/api';
-import { EventEmitter } from './components/base/events';
 import './scss/styles.scss';
-import { API_URL, settings } from './utils/constants';
+import { AppAPI } from './components/AppAPI';
+import { AppModel } from './components/AppModel';
+import { EventEmitter } from './components/base/events';
+import { Modal } from './components/common/modal';
+import { CartPresenter } from './components/presenters/cartPresenter';
+import { OrderPresenter } from './components/presenters/orderPresenter';
+import { ProductPresenter } from './components/presenters/productPresenter';
+import { CartProductsView } from './components/view/cartProductsView';
+import { ContactsFormView } from './components/view/contactsFormView';
+import { PaymentFormView } from './components/view/paymentFormView';
+import { SuccessModalView } from './components/view/successModalView';
+import { IOrderData, IProduct, IProductCart } from './types';
+import { API_URL, CDN_URL } from './utils/constants';
+import { cloneTemplate, ensureElement } from './utils/utils';
 
+// темплейты
+const cartTemplate = ensureElement<HTMLTemplateElement>('#basket');
+const paymentFormTemplate = ensureElement<HTMLTemplateElement>('#order');
+const contactsFormTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
+
+// элементы
+const modalWindow = ensureElement<HTMLElement>('#modal-container');
+const page = ensureElement<HTMLElement>('.page__wrapper');
+const cartButton = ensureElement<HTMLButtonElement>('.header__basket');
+
+// базовые элементы
 const events = new EventEmitter();
+const appAPI = new AppAPI(CDN_URL, API_URL);
+const appModel = new AppModel(appAPI, events);
 
-const productsData = new ProductsData(events);
-const cartData = new CartData(events);
-const orderData = new OrderData(events);
+// общие элементы
+const modal = new Modal(modalWindow, events);
+const cart = new CartProductsView(cloneTemplate(cartTemplate), events);
+const paymentForm = new PaymentFormView(
+	cloneTemplate(paymentFormTemplate),
+	events
+);
+const contactsForm = new ContactsFormView(
+	cloneTemplate(contactsFormTemplate),
+	events
+);
+const successModal = new SuccessModalView(
+	cloneTemplate(successTemplate),
+	events
+);
 
+// презентеры
+const productPresenter = new ProductPresenter(appModel, events, modal);
+const cartPresenter = new CartPresenter(appModel, events, modal, cart);
+const orderPresenter = new OrderPresenter(
+	appModel,
+	events,
+	modal,
+	paymentForm,
+	contactsForm,
+	successModal
+);
 
-const testProducts = {
-  "total": 10,
-  "items": [
-      {
-          "id": "854cef69-976d-4c2a-a18c-2aa45046c390",
-          "description": "Если планируете решать задачи в тренажёре, берите два.",
-          "image": "/5_Dots.svg",
-          "title": "+1 час в сутках",
-          "category": "софт-скил",
-          "price": 750
-      },
-      {
-          "id": "c101ab44-ed99-4a54-990d-47aa2bb4e7d9",
-          "description": "Лизните этот леденец, чтобы мгновенно запоминать и узнавать любой цветовой код CSS.",
-          "image": "/Shell.svg",
-          "title": "HEX-леденец",
-          "category": "другое",
-          "price": 1450
-      },
-      {
-          "id": "b06cde61-912f-4663-9751-09956c0eed67",
-          "description": "Будет стоять над душой и не давать прокрастинировать.",
-          "image": "/Asterisk_2.svg",
-          "title": "Мамка-таймер",
-          "category": "софт-скил",
-          "price": null
-      },
-      {
-          "id": "412bcf81-7e75-4e70-bdb9-d3c73c9803b7",
-          "description": "Откройте эти куки, чтобы узнать, какой фреймворк вы должны изучить дальше.",
-          "image": "/Soft_Flower.svg",
-          "title": "Фреймворк куки судьбы",
-          "category": "дополнительное",
-          "price": 2500
-      },
-      {
-          "id": "1c521d84-c48d-48fa-8cfb-9d911fa515fd",
-          "description": "Если орёт кот, нажмите кнопку.",
-          "image": "/mute-cat.svg",
-          "title": "Кнопка «Замьютить кота»",
-          "category": "кнопка",
-          "price": 2000
-      },
-      {
-          "id": "f3867296-45c7-4603-bd34-29cea3a061d5",
-          "description": "Чтобы научиться правильно называть модификаторы, без этого не обойтись.",
-          "image": "/Pill.svg",
-          "title": "БЭМ-пилюлька",
-          "category": "другое",
-          "price": 1500
-      },
-      {
-          "id": "54df7dcb-1213-4b3c-ab61-92ed5f845535",
-          "description": "Измените локацию для поиска работы.",
-          "image": "/Polygon.svg",
-          "title": "Портативный телепорт",
-          "category": "другое",
-          "price": 100000
-      },
-      {
-          "id": "6a834fb8-350a-440c-ab55-d0e9b959b6e3",
-          "description": "Даст время для изучения React, ООП и бэкенда",
-          "image": "/Butterfly.svg",
-          "title": "Микровселенная в кармане",
-          "category": "другое",
-          "price": 750
-      },
-      {
-          "id": "48e86fc0-ca99-4e13-b164-b98d65928b53",
-          "description": "Очень полезный навык для фронтендера. Без шуток.",
-          "image": "/Leaf.svg",
-          "title": "UI/UX-карандаш",
-          "category": "хард-скил",
-          "price": 10000
-      },
-      {
-          "id": "90973ae5-285c-4b6f-a6d0-65d1d760b102",
-          "description": "Сжимайте мячик, чтобы снизить стресс от тем по бэкенду.",
-          "image": "/Mithosis.svg",
-          "title": "Бэкенд-антистресс",
-          "category": "другое",
-          "price": 1000
-      }
-  ]
-}
+// события
+events.on('products:fetched', () => {
+	productPresenter.loadProducts();
+});
 
-const testOrder = {
-  "payment": "online",
-  "email": "test@test.ru",
-  "phone": "+71234567890",
-  "address": "Spb Vosstania 1",
-  "total": 2200,
-  "items": [
-      "854cef69-976d-4c2a-a18c-2aa45046c390",
-      "c101ab44-ed99-4a54-990d-47aa2bb4e7d9"
-  ]
-}
+events.on('product:selected', (data: IProduct) => {
+	productPresenter.handleOpenModal(data);
+});
 
-import { IApi, IProduct } from './types';
+events.on('product:addToCart', (data: IProductCart) => {
+	cartPresenter.handleAddToCart(data);
+});
 
-const newProductsData = {
-  total: testProducts.total,
-  items: testProducts.items.map((item): IProduct => {
-    const canBuy = item.price !== null;
-    return {
-      ...item,
-      cartState: false,
-      canBuy,
-      serialNumber: null,
-      category: item.category,
-    };
-  }),
-};
+events.on('product:delFromCart', (data: IProductCart) => {
+	cartPresenter.handleDelFromCart(data.id);
+});
 
-productsData.productsList = testProducts.items;
+events.on('modal:open', () => {
+	page.classList.add('page__wrapper_locked');
+});
 
-console.log(productsData.productsList);
+events.on('modal:close', () => {
+	page.classList.remove('page__wrapper_locked');
+});
 
-// Для тестирования слоя коммуникации:
+events.on('order:start', () => {
+	orderPresenter.handleOpenPaymentForm();
+});
 
-/*
+events.on('order:submit', () => {
+	orderPresenter.handleOpenContactsForm();
+});
 
+events.on('contacts:submit', () => {
+	orderPresenter.handleSendOrderDetails();
+	cartPresenter.handleUpdateView();
+});
 
+events.on(
+	/^(order|contacts)\..*:change$/,
+	(data: { field: keyof IOrderData; value: string }) => {
+		orderPresenter.handleChangeInput(data.field, data.value);
+	}
+);
 
+events.on('formErrors:change', (errors: Partial<IOrderData>) => {
+	orderPresenter.handleErrors(errors);
+});
 
-*/
+cartButton.addEventListener('click', () => {
+	cartPresenter.handleOpenModal();
+});
 
-
-
-const baseApi: IApi = new Api(API_URL, settings);
-const api = new AppAPI(baseApi);
-
-const testPromise = new Promise<void>((resolve, reject) => {
-  
-})
+events.on('order:done', () => {
+	modal.close();
+});
