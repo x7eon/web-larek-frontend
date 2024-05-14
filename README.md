@@ -29,8 +29,8 @@
 		- [Класс ProductPresenter](#класс-productpresenter)
 		- [Класс CartPresenter](#класс-cartpresenter)
 		- [Класс OrderPresenter](#класс-orderpresenter)
-	- [Список событий](#список-событий)
-
+	- [Список событий](#список-событий) 
+	
 ## Описание приложения
 Интернет-магазин с товарами для веб-разработчиков — Web-ларёк. В нём можно посмотреть каталог товаров, добавить товары в корзину и сделать заказ. 
 
@@ -272,7 +272,7 @@ export interface IAppAPI {
 * getProduct(id: string): Promise<IProduct> — метод для получения данных одной карточки.
 * postOrder(order: IOrderData): Promise<ISuccessOrder> — метод для отправки данных заказа на сервер.
 
-### Слой данных (Model)
+### &#10134; Слой данных (Model)
 
 #### Класc AppModel
 Реализует интерфейс:
@@ -307,7 +307,7 @@ export interface IAppModel {
 * clearCart(): void — метод для очистки корзины и localStorage.
 * isInCart(id: string): boolean — метод для проверки нахождения товара в cart. 
 
-### Слой отображения (View)
+### &#10134; Слой отображения (View)
 Все классы отображения отвечают за отображение внутри контейнера(DOM-элемент) передаваемых в них данных. 
 
 #### Класс Modal
@@ -452,7 +452,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 Методы класса для взаимодействия с его данными:
 - set total(total: string)  — сеттер для итоговой стоимости заказа в descriptionElem.
 
-### Слой представления (Presenter)
+### &#10134; Слой представления (Presenter)
 
 #### Класс ProductPresenter
 Расширяет класс Presenter. Реализует презентре для связи AppModel и ProductView.
