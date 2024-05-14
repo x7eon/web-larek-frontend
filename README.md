@@ -1,5 +1,39 @@
 # Проектная работа "Веб-ларек"
 
+## Оглавление
+- [Описание приложения](#описание)
+- [Установка и запуск](#установка-и-запуск)
+-	[Документация](#документация)
+	- [Описание данных и их типов](#описание-данных-и-их-типов)
+	- [Описание архитектуры](#описание-архитектуры)
+	- [Базовый код](#базовый-код)
+		- [Класс API](#класс-api)
+		- [Класс EventEmitter](#класс-eventemitter)
+		- [Класс Component](#класс-component)
+		- [Класс Presenter](#класс-presenter)
+	- [Класс AppAPI](#класс-appapi)
+	- [Слой данных (Model)](#слой-данных-model)
+		- [Класc AppModel](#класc-appmodel)
+	- [Слой отображения (View)](#слой-отображения-view)
+		- [Класс Modal](#класс-modal)
+		- [Класс Product](#класс-product)
+		- [Класс Form](#класс-form)
+		- [Класс ProductView](#класс-productview)
+		- [Класс ProductPreView](#класс-productpreview)
+		- [Класс CartProductsView](#класс-cartproductsview)
+		- [Класс CartProductView](#класс-cartproductview)
+		- [Класс PaymentFormView](#класс-paymentformview)
+		- [Класс ContactsFormView](#класс-contactsformview)
+		- [Класс SuccessModalView](#класс-successmodalview)
+	- [Слой представления (Presenter)](#слой-представления-presenter)
+		- [Класс ProductPresenter](#класс-productpresenter)
+		- [Класс CartPresenter](#класс-cartpresenter)
+		- [Класс OrderPresenter](#класс-orderpresenter)
+	- [Список событий](#список-событий)
+
+## Описание приложения
+Интернет-магазин с товарами для веб-разработчиков — Web-ларёк. В нём можно посмотреть каталог товаров, добавить товары в корзину и сделать заказ. 
+
 Стек: HTML, SCSS, TS, Webpack
 
 Структура проекта:
@@ -41,7 +75,9 @@ npm run build
 yarn build
 ```
 
-## Описание данных и их типов
+## Документация
+
+### Описание данных и их типов
 
 Тип ключей категорий
 ```
@@ -76,7 +112,7 @@ export interface IProduct {
 }
 ```
 
-Интерфейс, описывающий элемент **товар в корзине**. 
+Интерфейс, описывающий элемент товар в корзине. 
 ```
 export interface IProductCart {
 	id: string;
@@ -134,12 +170,12 @@ export interface IOrderData extends IOrderProducts {
 }
 ```
 
-// тип, описывающий ошибки форм
+Тип, описывающий ошибки форм
 ```
 export type FormErrors = Partial<Record<keyof IOrderData, string>>;
 ```
 
-// тип, описывающий состояние элемента кнопки
+Тип, описывающий состояние элемента кнопки
 ```
 export type ButtonState = 'Купить' | 'Убрать из корзины';
 ```
@@ -152,7 +188,7 @@ export interface ISuccessOrder {
 }
 ```
 
-## Описание архитектуры 
+### Описание архитектуры 
 Архитектура приложения построена с использованием паттерна MVP.
 
 В приложении выделено 3 слоя, согласно этому паттерну:
@@ -165,9 +201,9 @@ export interface ISuccessOrder {
 - cartPresenter — служит для связи операций с корзиной и моделью 
 - orderPresenter — служит для связи операций с оформлением заказа и моделью
 
-## Базовый код
+### Базовый код
 
-### Класс API
+#### Класс API
 Реализует базовую работу с сервером — отправку запросов. 
 
 constructor(baseUrl: string, options: RequestInit = {}) — конструктор принимает базовый адрес сервера и объект опций. 
@@ -176,7 +212,7 @@ constructor(baseUrl: string, options: RequestInit = {}) — конструкто
 - get — позволяет сделать `GET` запрос к серверу по переданному в параметрах конечному пути. Возвращает промис с объектом от сервера.
 - post — позволяет сделать `POST` запрос с объектом данных(приводится к JSON) на сервер по переданному в параметрах конечному пути. Метод запроса можно поменять, передав его третим параметром(по умолчанию установлен `POST`).
 
-### Класс EventEmitter
+#### Класс EventEmitter
 Выступает в роли брокера событий. Реализует отправку и подписку на события. Класс используется в слое 'Presenter' для обработки событий, а в остальных слоях для генерации событий. 
 
 Основаные методы класса:
@@ -189,7 +225,7 @@ constructor(baseUrl: string, options: RequestInit = {}) — конструкто
 - offAll — сбрасывает все подписки. 
 - trigger — создает колбек, генерирующий событие с переданными данными и контекстом. 
 
-### Класс Component
+#### Класс Component
 Представляет собой асбртактный базовый класс для создания UI-компонетов. 
 
 - constructor(container: HTMLElement) — конструктор принимает и инициализирует контейнер. 
@@ -203,7 +239,7 @@ constructor(baseUrl: string, options: RequestInit = {}) — конструкто
 - setImage(element: HTMLImageElement, src: string, alt?: string): устанавливает переданному элементу-картинке переданные ссылку на картинку и альтернативный текст. 
 - render(data?: Partial<T>): HTMLElement — отрисовывает компонент. Опционально можно передать данные, которые будут объединены с данными компонента. Возвращает контейнер. 
 
-### Класс Presenter
+#### Класс Presenter
 Представляет собой асбртактный базовый класс для реализации презентеров. 
 
 3 обязательных параметра передаются в конструктор: модель, брокер событий, модальное окно. Также в конструктор можно передать 3 необязательных класса отображения. Классы отображения могут быть разными, например, корзина товаров или форма оформления заказа. Используется нумерация, т.к. у презентеров нет паттерна принятия аргументами элементов слоя отображения. У презентера есть дженерики: V, V2, V3 - поэтому при реализации класса их нужно уточнить. Например, <IOrderForm, IContactsForm, ISuccessModal>. 
@@ -217,7 +253,7 @@ constructor(baseUrl: string, options: RequestInit = {}) — конструкто
 * protected _view2?: V2;
 * protected _view3?: V3;
 
-## Класс AppAPI
+#### Класс AppAPI
 Расширяет базовый класс Api. Реализует интерфейс IAppAPI:
 ```
 export interface IAppAPI {
@@ -236,9 +272,9 @@ export interface IAppAPI {
 * getProduct(id: string): Promise<IProduct> — метод для получения данных одной карточки.
 * postOrder(order: IOrderData): Promise<ISuccessOrder> — метод для отправки данных заказа на сервер.
 
-## Слой данных (Model)
+### Слой данных (Model)
 
-### Класc AppModel
+#### Класc AppModel
 Реализует интерфейс:
 
 ```
@@ -271,10 +307,10 @@ export interface IAppModel {
 * clearCart(): void — метод для очистки корзины и localStorage.
 * isInCart(id: string): boolean — метод для проверки нахождения товара в cart. 
 
-## Слой отображения (View)
+### Слой отображения (View)
 Все классы отображения отвечают за отображение внутри контейнера(DOM-элемент) передаваемых в них данных. 
 
-### Класс Modal
+#### Класс Modal
 Расширяет класс Component. Реализует отображение модального окна.\
 Устанвливает слушатели для закрытия окна: нажатием клавишы Esc, кликом по оверлею и кликом по кнопке закрытия модального окна.\
 
@@ -290,7 +326,7 @@ export interface IAppModel {
 - close() — метод для скрытия модального окна.
 - render(data: IModalData): HTMLElement — метод для отрисовки модального окна с переданными ему данными. Обеспечивает автоматическое открытие модального окна после отрисовки. 
 
-### Класс Product
+#### Класс Product
 Расширяет класс Component. Реализует отображение товара.\
 
 Поля класса для хранения и взаимодействия с его данными:
@@ -310,7 +346,7 @@ constructor(container: HTMLElement, product: IProduct, events: IEvents) — пр
 - set image(src: string) — сеттер для картинки товара.
 - set price(price: number)— сеттер для цены товара.
 
-### Класс Form
+#### Класс Form
 Расширяет класс Component. Реализует формы приложения. Устанавливает слушатели на кнопку submit и на инпуты.\
 
 Поля класса для хранения и взаимодействия с его данными:
@@ -326,12 +362,12 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - render(state: Partial<T> & IFormState) — метод для отрисовки формы.
 
 
-### Класс ProductView
+#### Класс ProductView
 Расширяет класс Product. Реализует отображение товара.
 
 В конструкторе устанавливается слушатель событий на товар, при нажатии срабатывает событие product:selected.
 
-### Класс ProductPreview
+#### Класс ProductPreview
 Расширяет класс Product. Реализует отображение товара в модальном окне товара.
 
 Конструктор устанавливает слушатель на кнопку 'Купить'.
@@ -344,7 +380,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - set button(buttonText: ButtonState) — сеттер для состояния кнопки 'Купить'.
 - set description(description: string) — сеттер для описания товара.
 
-### Класс CartProductsView
+#### Класс CartProductsView
 Расширяет класс Component. Реализует отображение корзины с товарами.
 
 Элемент корзины передается параметром в конструктор. Внутри контейнера находятся: listElem, buttonElem, totalPriceElem. На кнопку устанавливается слушатель, вызывающий срабатывание события order:start.
@@ -361,8 +397,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - protected updateTotalPrice(productCart: IProductCart[]) — метод для обновления итоговой цены товаров в корзине при добавлении/удалении товара. 
 - protected toggleButton(empty: boolean) — метод для включения/выключения кнопки оформления заказа. Если не корзина не пустая, то кнопка включена.
 
-
-### Класс CartProductView
+#### Класс CartProductView
 Расширяет класс Component. Реализует отображение товаров в корзине.
 
 Элемент корзины передается параметром в конструктор. Внутри контейнера находятся: indexElem, titleElem, priceElem, buttonElem. На кнопку устанавливается слушатель, вызывающий событие product:delFromCart.
@@ -380,7 +415,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - set index(index: number) — сеттер для индекса товара
 - set price(price: number) — сеттер для цены товара
 
-### Класс PaymentFormView 
+#### Класс PaymentFormView 
 Расширяет класс Form. Реализует отображение формы с оплатой и адресом.
 
 Элемент формы и EventEmitter передаются параметром в конструктор. Устанавливается слушатель событий на кнопки выбора способа оплаты.
@@ -393,7 +428,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - set payment(value: paymentMethod) — сеттер для способа оплаты
 - private handlePaymentChange(event: Event) — обработчик переключения способа оплаты кнопками.
 
-### Класс ContactsFormView
+#### Класс ContactsFormView
 Расширяет класс Form. Реализует отображение формы с контактной информацией, почтой и телефоном.
 
 Элемент формы и EventEmitter передаются параметром в конструктор.
@@ -402,7 +437,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - set phone(value: string) — сеттер для номера телефона
 - set email(value: string) — сеттер для почты
 
-### Класс ISuccessModalView
+#### Класс SuccessModalView
 Расширяет класс Component. Реализует отображение модального окна
 с успешным заказом.
 
@@ -417,9 +452,9 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 Методы класса для взаимодействия с его данными:
 - set total(total: string)  — сеттер для итоговой стоимости заказа в descriptionElem.
 
-## Слой представления (Presenter)
+### Слой представления (Presenter)
 
-### Класс ProductPresenter
+#### Класс ProductPresenter
 Расширяет класс Presenter. Реализует презентре для связи AppModel и ProductView.
 
 Инстанты классов AppModel и Modal, EventEmitter передаются параметрами в конструктор и инициализируются.
@@ -428,7 +463,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - loadProducts(): void — метод создания товара и его отображения, срабатывающий при событии products:fetched.
 - handleOpenModal(product: IProduct): void — метод для передачи данных выбранного товара в модальное окно товара и в модель.
 
-### Класс CartPresenter
+#### Класс CartPresenter
 Расширяет класс Presenter. Реализует презентер для связи AppModel и CartProductsView. 
 
 Инстанты классов AppModel и EventEmitter, Modal и CartProductsView передаются параметрами в конструктор.
@@ -439,7 +474,7 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 - handleOpenModal() — метод для открытия модального окна корзины
 - handleUpdateView() — метод для обновления отображения корзины
 
-### Класс OrderPresenter
+#### Класс OrderPresenter
 Расширяет класс Presenter. Реализует презентер для связи AppModel, PaymentFormView, ContactsFormView. 
 
 AppModel, EventEmitter, Modal, PaymentFormView, ContactsFormView и SuccessModalView передаются параметрами в конструктор. 
@@ -457,7 +492,7 @@ AppModel, EventEmitter, Modal, PaymentFormView, ContactsFormView и SuccessModal
 - handleSendOrderDetails() — метод для отправки данных заказа на сервер через метод модели, а также вызова метода очистки корзины
 - handleClearCart() — метод для очистки корзины
 
-## Список событий 
+### Список событий 
 
 - `products:fetched` — срабатывает при разрешении промиса, который загружает товары с сервера. В ProductPresenter используются загруженные данные для последующего отображения.
 - `product:selected` — срабатывает при выборе конкретного товара. Передает в AppModel данные выбранного товара, открывает модальное окно товара.
