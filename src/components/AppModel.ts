@@ -5,42 +5,37 @@ import { IEvents } from './base/events';
 export interface IAppModel {
 	products: IProduct[];
 	cart: IProductCart[];
+	AppAPI: IAppAPI;
+	orderDetails: IOrderData | null;
 
 	addToCart(product: IProductCart): void;
 	delFromCart(productId: string): void;
 	isInCart(id: string): boolean;
 	sendOrder(orderData: IOrderData): Promise<ISuccessOrder>;
 	clearCart(): void;
+	setOrderDetails(orderDetails: IOrderData): void;
+	clearOrderDetails(): void;
 }
 
 export class AppModel implements IAppModel {
-	protected AppAPI: IAppAPI;
 	protected events: IEvents;
-
+	AppAPI: IAppAPI;
+	orderDetails: IOrderData | null = null;
 	products: IProduct[] = [];
 	cart: IProductCart[] = [];
 
 	constructor(AppAPI: IAppAPI, events: IEvents) {
 		this.AppAPI = AppAPI;
 		this.events = events;
-		this.initialize();
-	}
-
-	private initialize() {
-		this.fetchProducts()
-			.then((products) => {
-				this.products = products;
-				this.events.emit('products:fetched', products);
-			})
-			.catch((error) => {
-				console.log('Ошибка загрузки продуктов:', error);
-			});
-
 		this.getCart();
 	}
 
-	private fetchProducts(): Promise<IProduct[]> {
-		return this.AppAPI.getProducts();
+	public setOrderDetails(orderDetails: IOrderData) {
+		this.orderDetails = orderDetails;
+	}
+
+	public clearOrderDetails(): void {
+		this.orderDetails = null;
 	}
 
 	private getCart(): void {

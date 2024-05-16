@@ -33,6 +33,9 @@ export class CartPresenter extends Presenter<ICartView> {
 	}
 
 	handleUpdateView() {
-		this._view.updateView(this._model.cart);
+		const cartData = this._model.cart.map((item, index) => {
+			return { ...item, index: index + 1 };
+		});
+		this._view.updateView(cartData);
 	}
 }

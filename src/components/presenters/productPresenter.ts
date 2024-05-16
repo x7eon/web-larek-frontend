@@ -17,6 +17,7 @@ const productModal = ensureElement<HTMLTemplateElement>('#card-preview');
 export class ProductPresenter extends Presenter {
 	constructor(model: IAppModel, events: IEvents, modal: IModal) {
 		super(model, events, modal);
+		this.fetchProducts();
 	}
 
 	loadProducts(): void {
@@ -47,5 +48,17 @@ export class ProductPresenter extends Presenter {
 		this._modal.render({
 			content: productPreview.render(product),
 		});
+	}
+
+	fetchProducts(): void {
+		this._model.AppAPI.getProducts()
+			.then((products) => {
+				this._model.products = products;
+				this._events.emit('products:fetched', products);
+				this.loadProducts();
+			})
+			.catch((error) => {
+        console.log('Ошибка загрузки продуктов:', error);
+      });
 	}
 }

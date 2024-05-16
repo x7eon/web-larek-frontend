@@ -28,24 +28,24 @@ export class ProductPreview extends Product {
 			};
 
 			if (this.buttonElemenet.textContent === 'Убрать из корзины') {
-				this.buttonElemenet.textContent = 'Купить';
+				this.setText(this.buttonElemenet, 'Купить');
 				this.events.emit('product:delFromCart', { ...data });
 			} else {
-				this.buttonElemenet.textContent = 'Убрать из корзины';
+				this.setText(this.buttonElemenet, 'Убрать из корзины');
 				this.events.emit('product:addToCart', { ...data });
 			}
 		});
 
 		if (!this.product.price) {
-			this.buttonElemenet.setAttribute('disabled', '');
+			this.setDisabled(this.buttonElemenet, true);
 		}
 	}
 
 	set button(buttonText: ButtonState) {
-		this.buttonElemenet.textContent = buttonText;
+		this.setText(this.buttonElemenet, buttonText);
 	}
 
 	set description(description: string) {
-		this.descriptionElement.textContent = description;
+		this.setText(this.descriptionElement, description); 
 	}
 }

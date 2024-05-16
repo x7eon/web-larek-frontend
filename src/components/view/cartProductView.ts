@@ -33,18 +33,18 @@ export class CartProductView extends Component<IProductCart> {
 	}
 
 	set title(title: string) {
-		this.titleElem.textContent = title;
+		this.setText(this.titleElem, title);
 	}
 
 	set index(index: number) {
-		this.indexElem.textContent = index.toString();
+		this.setText(this.indexElem, index.toString());
 	}
 
 	set price(price: number) {
 		if (price) {
-			this.priceElem.textContent = price.toString() + ' синапсов';
+			this.setText(this.priceElem, `${price.toString()} синапсов`);
 		} else {
-			this.priceElem.textContent = 'Бесценно';
+			this.setText(this.priceElem, 'Бесценно');
 		}
 	}
 }

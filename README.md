@@ -286,6 +286,7 @@ export interface IAppAPI {
 export interface IAppModel {
 	products: IProduct[];
 	cart: IProductCart[];
+	AppAPI: IAppAPI;
 
 	addToCart(product: IProductCart): void;
 	delFromCart(productId: string): void;
@@ -294,20 +295,19 @@ export interface IAppModel {
 	clearCart(): void;
 }
 ```
-Инстанты классов AppAPI и EventEmmiter передаются параметрами в конструктор, также вызывается метод initialize().
+Инстанты классов AppAPI и EventEmmiter передаются параметрами в конструктор, также вызывается метод getCart().
 
 Поля класса для хранения и взаимодействия с его данными:
-* protected AppAPI: IAppAPI 
+* AppAPI: IAppAPI 
 * protected events: IEvents 
 * products: IProduct[] = []
 * cart: IProductCart[] = [] 
 
 Методы класса для взаимодействия с его данными:
-* private initialize() — метод вызывается в конструкторе и вызывает fetchProducts().
 * private fetchProducts(): Promise<IProduct[]> — метод для получения товаров с сервера.
 * addToCart(product: IProductCart): void — метод для добавления товара в корзину и в localStorage.
 * delFromCart(productId: string): void — метод для удаления товара из корзины и localStorage по переданному id товара.
-* private getCart(): void — метод для получения товаров из localStorage и сохранения в переменной cart.
+* private getCart(): void — метод для получения товаров из localStorage и сохранения в переменной cart. Вызывавется в конструкторе. 
 * sendOrder(orderData: IOrderData) — метод для отправки заказа.
 * clearCart(): void — метод для очистки корзины и localStorage.
 * isInCart(id: string): boolean — метод для проверки нахождения товара в cart. 
@@ -462,11 +462,12 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 #### Класс ProductPresenter
 Расширяет класс Presenter. Реализует презентре для связи AppModel и ProductView.
 
-Инстанты классов AppModel и Modal, EventEmitter передаются параметрами в конструктор и инициализируются.
+Инстанты классов AppModel и Modal, EventEmitter передаются параметрами в конструктор и инициализируются. Вызывается метод fetchProducts().
 
 Методы класса для взаимодействия с его данными:
 - loadProducts(): void — метод создания товара и его отображения, срабатывающий при событии products:fetched.
 - handleOpenModal(product: IProduct): void — метод для передачи данных выбранного товара в модальное окно товара и в модель.
+- fetchProducts(): void — метод для получения товаров с сервера, обновления данных в модели, эмитирует событие products:fetched для обновления отображения. 
 
 #### Класс CartPresenter
 Расширяет класс Presenter. Реализует презентер для связи AppModel и CartProductsView. 

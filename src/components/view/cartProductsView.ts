@@ -48,39 +48,40 @@ export class CartProductsView
 	updateView(productsCart: IProductCart[]): void {
 		this.listElem.innerHTML = null;
 		if (productsCart.length === 0) {
-			this.toggleButton(true);
+				this.toggleButton(true);
 		} else {
-			this.toggleButton(false);
-			productsCart.forEach((productCart: IProductCart, index: number) => {
-				const item = new CartProductView(
-					cloneTemplate(cartTemplate),
-					this.events,
-					productCart
-				);
-				item.index = index + 1;
-				this.listElem.appendChild(item.render(productCart));
-			});
+				this.toggleButton(false);
+				productsCart.forEach((product) => {
+						const item = new CartProductView(
+								cloneTemplate(cartTemplate),
+								this.events,
+								product
+						);
+						item.index = product.index;
+						this.listElem.appendChild(item.render(product));
+				});
 		}
 
 		this.updateTotalPrice(productsCart);
-		this.counterElem.textContent = productsCart.length.toString();
+		this.setText(this.counterElem, productsCart.length.toString());
 	}
 
 	protected updateTotalPrice(productCart: IProductCart[]) {
 		let totalPrice = 0;
 		for (let i = 0; i < productCart.length; i++) {
-			if (productCart[i].price) {
-				totalPrice += productCart[i].price;
-			}
+				if (productCart[i].price) {
+						totalPrice += productCart[i].price;
+				}
 		}
-		this.totalPriceElem.textContent = `${totalPrice.toString()} синапсов`;
-	}
+		this.setText(this.totalPriceElem, `${totalPrice.toString()} синапсов`);
+}
 
 	protected toggleButton(empty: boolean) {
 		if (empty) {
-			this.buttonElem.setAttribute('disabled', '');
-		} else {
-			this.buttonElem.removeAttribute('disabled');
+			this.setDisabled(this.buttonElem, true);
+		}
+		else {
+			this.setDisabled(this.buttonElem, false);
 		}
 	}
 }

@@ -23,20 +23,15 @@ export class PaymentFormView extends Form<IPaymentForm> {
 	}
 
 	set payment(value: paymentMethod) {
-		this.buttonElems.forEach((button) => {
-			button.classList.remove('button_alt-active');
-		});
-		(
-			this.container.elements.namedItem(`${value}`) as HTMLButtonElement
-		).classList.add('button_alt-active');
+		this.toggleClass(this.container.elements.namedItem(`${value}`) as HTMLButtonElement, 'button_alt-active');
 	}
 
 	private handlePaymentChange(event: Event) {
 		const target = event.target as HTMLButtonElement;
-
 		this.buttonElems.forEach((button) => {
-			button.classList.toggle('button_alt-active');
-		});
+			button.classList.remove('button_alt-active');
+		})
+		this.toggleClass(target, 'button_alt-active');
 
 		this.events.emit('order.payment:change', {
 			field: 'payment',

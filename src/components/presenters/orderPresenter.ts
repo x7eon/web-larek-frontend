@@ -16,7 +16,6 @@ export class OrderPresenter extends Presenter<
 	IContactsForm,
 	ISuccessModalView
 > {
-	private orderDetails: IOrderData;
 	private formErrors: FormErrors = {};
 
 	constructor(
@@ -30,15 +29,15 @@ export class OrderPresenter extends Presenter<
 		super(model, events, modal, paymentForm, contactsForm, successModal);
 	}
 
-	handleOpenPaymentForm() {
-		this.orderDetails = {
-			payment: 'card',
-			address: '',
-			email: '',
-			phone: '',
-			total: this._model.cart.reduce((sum, item) => sum + item.price, 0),
-			items: this._model.cart.map((item) => item.id),
-		};
+  handleOpenPaymentForm() {
+    this._model.setOrderDetails({
+      payment: 'card',
+      address: '',
+      email: '',
+      phone: '',
+      total: this._model.cart.reduce((sum, item) => sum + item.price, 0),
+      items: this._model.cart.map((item) => item.id),
+    });
 
 		this._modal.render({
 			content: this._view.render({
@@ -61,28 +60,37 @@ export class OrderPresenter extends Presenter<
 		});
 	}
 
-	handleChangeInput<K extends keyof IOrderData>(
-		field: K,
-		value: IOrderData[K] | string
-	) {
-		if (typeof value === 'string') {
-			this.orderDetails[field] = value as IOrderData[K];
+	handleChangeInput<K extends keyof IOrderData>(field: K, value: IOrderData[K] | string) {
+		const orderDetails = this._model.orderDetails;
+	
+		if (orderDetails) {
+			if (typeof value === 'string') {
+				orderDetails[field] = value as IOrderData[K];
+			}
+			this._model.setOrderDetails(orderDetails);
 		}
+	
 		this.validateOrder();
 	}
 
 	validateOrder() {
 		const errors: typeof this.formErrors = {};
-		if (!this.orderDetails.email) {
+		const orderDetails = this._model.orderDetails;
+
+		if (!orderDetails) {
+			return false;
+		}
+
+		if (!orderDetails.email) {
 			errors.email = 'Необходимо указать email';
 		}
-		if (!this.orderDetails.phone) {
+		if (!orderDetails.phone) {
 			errors.phone = 'Необходимо указать телефон';
 		}
-		if (!this.orderDetails.payment) {
+		if (!orderDetails.payment) {
 			errors.payment = 'Необходимо выбрать способ оплаты';
 		}
-		if (!this.orderDetails.address) {
+		if (!orderDetails.address) {
 			errors.address = 'Необходимо указать адрес';
 		}
 
@@ -100,7 +108,9 @@ export class OrderPresenter extends Presenter<
 	}
 
 	handleSendOrderDetails() {
-		this._model.sendOrder(this.orderDetails).then((data: ISuccessOrder) => {
+		const orderDetails = this._model.orderDetails;
+
+		this._model.sendOrder(orderDetails).then((data: ISuccessOrder) => {
 			this._events.emit('form:submit', { data });
 			this._modal.render({
 				content: this._view3.render({ ...data }),
@@ -111,13 +121,6 @@ export class OrderPresenter extends Presenter<
 
 	handleClearCart() {
 		this._model.clearCart();
-		this.orderDetails = {
-			payment: 'card',
-			address: '',
-			email: '',
-			phone: '',
-			total: 0,
-			items: [],
-		};
+		this._model.clearOrderDetails();
 	}
 }
