@@ -48,18 +48,18 @@ export class CartProductsView
 	updateView(productsCart: IProductCart[]): void {
 		this.listElem.innerHTML = null;
 		if (productsCart.length === 0) {
-				this.toggleButton(true);
+			this.toggleButton(true);
 		} else {
-				this.toggleButton(false);
-				productsCart.forEach((product) => {
-						const item = new CartProductView(
-								cloneTemplate(cartTemplate),
-								this.events,
-								product
-						);
-						item.index = product.index;
-						this.listElem.appendChild(item.render(product));
-				});
+			this.toggleButton(false);
+			productsCart.forEach((product) => {
+				const item = new CartProductView(
+					cloneTemplate(cartTemplate),
+					this.events,
+					product
+				);
+				item.index = product.index;
+				this.listElem.appendChild(item.render(product));
+			});
 		}
 
 		this.updateTotalPrice(productsCart);
@@ -69,18 +69,17 @@ export class CartProductsView
 	protected updateTotalPrice(productCart: IProductCart[]) {
 		let totalPrice = 0;
 		for (let i = 0; i < productCart.length; i++) {
-				if (productCart[i].price) {
-						totalPrice += productCart[i].price;
-				}
+			if (productCart[i].price) {
+				totalPrice += productCart[i].price;
+			}
 		}
 		this.setText(this.totalPriceElem, `${totalPrice.toString()} синапсов`);
-}
+	}
 
 	protected toggleButton(empty: boolean) {
 		if (empty) {
 			this.setDisabled(this.buttonElem, true);
-		}
-		else {
+		} else {
 			this.setDisabled(this.buttonElem, false);
 		}
 	}

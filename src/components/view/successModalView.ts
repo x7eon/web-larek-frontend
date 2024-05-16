@@ -34,6 +34,6 @@ export class SuccessModalView
 	}
 
 	set total(total: string) {
-		this.setText(this.descriptionElem, `Списано ${total} синапсов`) // новый вариант
+		this.setText(this.descriptionElem, `Списано ${total} синапсов`); // новый вариант
 	}
 }

@@ -123,6 +123,7 @@ export interface IProductCart {
 	id: string;
 	price: number;
 	title: string;
+	index?: number;
 }
 ```
 

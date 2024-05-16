@@ -58,7 +58,7 @@ export class ProductPresenter extends Presenter {
 				this.loadProducts();
 			})
 			.catch((error) => {
-        console.log('Ошибка загрузки продуктов:', error);
-      });
+				console.log('Ошибка загрузки продуктов:', error);
+			});
 	}
 }

@@ -29,15 +29,15 @@ export class OrderPresenter extends Presenter<
 		super(model, events, modal, paymentForm, contactsForm, successModal);
 	}
 
-  handleOpenPaymentForm() {
-    this._model.setOrderDetails({
-      payment: 'card',
-      address: '',
-      email: '',
-      phone: '',
-      total: this._model.cart.reduce((sum, item) => sum + item.price, 0),
-      items: this._model.cart.map((item) => item.id),
-    });
+	handleOpenPaymentForm() {
+		this._model.setOrderDetails({
+			payment: 'card',
+			address: '',
+			email: '',
+			phone: '',
+			total: this._model.cart.reduce((sum, item) => sum + item.price, 0),
+			items: this._model.cart.map((item) => item.id),
+		});
 
 		this._modal.render({
 			content: this._view.render({
@@ -60,16 +60,19 @@ export class OrderPresenter extends Presenter<
 		});
 	}
 
-	handleChangeInput<K extends keyof IOrderData>(field: K, value: IOrderData[K] | string) {
+	handleChangeInput<K extends keyof IOrderData>(
+		field: K,
+		value: IOrderData[K] | string
+	) {
 		const orderDetails = this._model.orderDetails;
-	
+
 		if (orderDetails) {
 			if (typeof value === 'string') {
 				orderDetails[field] = value as IOrderData[K];
 			}
 			this._model.setOrderDetails(orderDetails);
 		}
-	
+
 		this.validateOrder();
 	}
 

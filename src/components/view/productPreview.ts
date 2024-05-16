@@ -46,6 +46,6 @@ export class ProductPreview extends Product {
 	}
 
 	set description(description: string) {
-		this.setText(this.descriptionElement, description); 
+		this.setText(this.descriptionElement, description);
 	}
 }
