@@ -287,31 +287,32 @@ export interface IAppAPI {
 export interface IAppModel {
 	products: IProduct[];
 	cart: IProductCart[];
-	AppAPI: IAppAPI;
+	orderDetails: IOrderData | null;
 
 	addToCart(product: IProductCart): void;
 	delFromCart(productId: string): void;
 	isInCart(id: string): boolean;
-	sendOrder(orderData: IOrderData): Promise<ISuccessOrder>;
 	clearCart(): void;
+	setOrderDetails(orderDetails: IOrderData): void;
+	clearOrderDetails(): void;
 }
 ```
-Инстанты классов AppAPI и EventEmmiter передаются параметрами в конструктор, также вызывается метод getCart().
+Инстант EventEmmiter передаётся параметром в конструктор, также вызывается метод getCart().
 
 Поля класса для хранения и взаимодействия с его данными:
-* AppAPI: IAppAPI 
-* protected events: IEvents 
-* products: IProduct[] = []
-* cart: IProductCart[] = [] 
+* protected events: IEvents;
+*	orderDetails: IOrderData | null = null;
+* products: IProduct[] = [];
+* cart: IProductCart[] = []; 
 
 Методы класса для взаимодействия с его данными:
-* private fetchProducts(): Promise<IProduct[]> — метод для получения товаров с сервера.
 * addToCart(product: IProductCart): void — метод для добавления товара в корзину и в localStorage.
 * delFromCart(productId: string): void — метод для удаления товара из корзины и localStorage по переданному id товара.
 * private getCart(): void — метод для получения товаров из localStorage и сохранения в переменной cart. Вызывавется в конструкторе. 
-* sendOrder(orderData: IOrderData) — метод для отправки заказа.
 * clearCart(): void — метод для очистки корзины и localStorage.
-* isInCart(id: string): boolean — метод для проверки нахождения товара в cart. 
+* isInCart(id: string): boolean — метод для проверки нахождения товара в cart.
+* setOrderDetails(orderDetails: IOrderData) — метод для установки деталей заказа
+* clearOrderDetails(): void — метод для очистки деталей заказа
 
 ### &#10134; Слой отображения (View)
 Все классы отображения отвечают за отображение внутри контейнера(DOM-элемент) передаваемых в них данных. 
@@ -487,7 +488,6 @@ constructor(protected container: HTMLFormElement, protected events: IEvents) —
 AppModel, EventEmitter, Modal, PaymentFormView, ContactsFormView и SuccessModalView передаются параметрами в конструктор. 
 
 Поля класса для хранения и взаимодействия с его данными:
--	private orderDetails: IOrderData;
 - private formErrors: FormErrors = {};
 
 Методы класса для взаимодействия с его данными:
@@ -496,7 +496,7 @@ AppModel, EventEmitter, Modal, PaymentFormView, ContactsFormView и SuccessModal
 - handleChangeInput<K extends keyof IOrderData> — устанавливает значения из формы в переменную orderDetails
 - validateOrder() — метод для валидации формы и установки ошибок
 - handleErrors(errors: Partial<IOrderData>) — метод для передачи текста ошибок
-- handleSendOrderDetails() — метод для отправки данных заказа на сервер через метод модели, а также вызова метода очистки корзины
+- handleSendOrderDetails() — метод для отправки данных заказа на сервер через метод AppAPI, а также вызова метода очистки корзины
 - handleClearCart() — метод для очистки корзины
 
 ### Список событий 

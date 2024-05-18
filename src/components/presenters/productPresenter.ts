@@ -6,6 +6,7 @@ import { Presenter } from '../base/presenter';
 import { IModal } from '../common/modal';
 import { ProductView } from '../view/productView';
 import { ProductPreview } from '../view/productPreview';
+import { IAppAPI } from '../AppAPI';
 
 // элементы
 const productContainer = ensureElement('.gallery');
@@ -15,8 +16,13 @@ const productTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const productModal = ensureElement<HTMLTemplateElement>('#card-preview');
 
 export class ProductPresenter extends Presenter {
-	constructor(model: IAppModel, events: IEvents, modal: IModal) {
-		super(model, events, modal);
+	constructor(
+		model: IAppModel,
+		events: IEvents,
+		modal: IModal,
+		AppAPI: IAppAPI
+	) {
+		super(model, events, modal, undefined, undefined, undefined, AppAPI);
 		this.fetchProducts();
 	}
 
@@ -51,11 +57,11 @@ export class ProductPresenter extends Presenter {
 	}
 
 	fetchProducts(): void {
-		this._model.AppAPI.getProducts()
-			.then((products) => {
+		this._AppAPI
+			.getProducts()
+			.then((products: IProduct[]) => {
 				this._model.products = products;
 				this._events.emit('products:fetched', products);
-				this.loadProducts();
 			})
 			.catch((error) => {
 				console.log('Ошибка загрузки продуктов:', error);

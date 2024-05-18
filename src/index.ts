@@ -28,7 +28,8 @@ const cartButton = ensureElement<HTMLButtonElement>('.header__basket');
 // базовые элементы
 const events = new EventEmitter();
 const appAPI = new AppAPI(CDN_URL, API_URL);
-const appModel = new AppModel(appAPI, events);
+// const appModel = new AppModel(appAPI, events);
+const appModel = new AppModel(events);
 
 // общие элементы
 const modal = new Modal(modalWindow, events);
@@ -47,7 +48,7 @@ const successModal = new SuccessModalView(
 );
 
 // презентеры
-const productPresenter = new ProductPresenter(appModel, events, modal);
+const productPresenter = new ProductPresenter(appModel, events, modal, appAPI);
 const cartPresenter = new CartPresenter(appModel, events, modal, cart);
 const orderPresenter = new OrderPresenter(
 	appModel,
@@ -55,7 +56,8 @@ const orderPresenter = new OrderPresenter(
 	modal,
 	paymentForm,
 	contactsForm,
-	successModal
+	successModal,
+	appAPI
 );
 
 // события

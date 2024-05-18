@@ -35,26 +35,25 @@ export class Product extends Component<IProduct> {
 	}
 
 	set category(category: categoryKey) {
-		this._categoryElem.textContent = category;
+		this.setText(this._categoryElem, category);
 		this._categoryElem.classList.add(
 			`card__category_${productCategory[category]}`
 		);
 	}
 
 	set title(title: string) {
-		this._titleElem.textContent = title;
+		this.setText(this._titleElem, title);
 	}
 
 	set image(src: string) {
-		this._imageElem.src = src;
-		this._imageElem.alt = this.product.title;
+		this.setImage(this._imageElem, src, this.product.title);
 	}
 
 	set price(price: number) {
 		if (price) {
-			this._priceElem.textContent = `${price} синапсов`;
+			this.setText(this._priceElem, `${price} синапсов`);
 		} else {
-			this._priceElem.textContent = 'Бесценно';
+			this.setText(this._priceElem, 'Бесценно');
 		}
 	}
 }

@@ -10,9 +10,9 @@ export class CartPresenter extends Presenter<ICartView> {
 		model: IAppModel,
 		events: IEvents,
 		modal: IModal,
-		view: ICartView
+		private cartProductsView: ICartView
 	) {
-		super(model, events, modal, view);
+		super(model, events, modal, cartProductsView);
 		this.handleUpdateView();
 	}
 
@@ -28,7 +28,7 @@ export class CartPresenter extends Presenter<ICartView> {
 
 	handleOpenModal() {
 		this._modal.render({
-			content: this._view.render(),
+			content: this.cartProductsView.render(),
 		});
 	}
 
@@ -36,6 +36,6 @@ export class CartPresenter extends Presenter<ICartView> {
 		const cartData = this._model.cart.map((item, index) => {
 			return { ...item, index: index + 1 };
 		});
-		this._view.updateView(cartData);
+		this.cartProductsView.updateView(cartData);
 	}
 }

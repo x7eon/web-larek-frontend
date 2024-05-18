@@ -5,6 +5,7 @@ import {
 	ISuccessOrder,
 	FormErrors,
 } from '../../types';
+import { IAppAPI } from '../AppAPI';
 import { IAppModel } from '../AppModel';
 import { IEvents } from '../base/events';
 import { Presenter } from '../base/presenter';
@@ -22,11 +23,20 @@ export class OrderPresenter extends Presenter<
 		model: IAppModel,
 		events: IEvents,
 		modal: IModal,
-		paymentForm: IPaymentForm,
-		contactsForm: IContactsForm,
-		successModal: ISuccessModalView
+		private paymentForm: IPaymentForm,
+		private contactsForm: IContactsForm,
+		private successModal: ISuccessModalView,
+		AppAPI: IAppAPI
 	) {
-		super(model, events, modal, paymentForm, contactsForm, successModal);
+		super(
+			model,
+			events,
+			modal,
+			paymentForm,
+			contactsForm,
+			successModal,
+			AppAPI
+		);
 	}
 
 	handleOpenPaymentForm() {
@@ -40,7 +50,7 @@ export class OrderPresenter extends Presenter<
 		});
 
 		this._modal.render({
-			content: this._view.render({
+			content: this.paymentForm.render({
 				address: '',
 				payment: 'card',
 				valid: false,
@@ -51,7 +61,7 @@ export class OrderPresenter extends Presenter<
 
 	handleOpenContactsForm() {
 		this._modal.render({
-			content: this._view2.render({
+			content: this.contactsForm.render({
 				email: '',
 				phone: '',
 				valid: false,
@@ -104,22 +114,29 @@ export class OrderPresenter extends Presenter<
 
 	handleErrors(errors: Partial<IOrderData>) {
 		const { email, phone, payment, address } = errors;
-		this._view.valid = !address;
-		this._view2.valid = !email && !phone;
-		this._view.errors = Object.values({ address, payment });
-		this._view2.errors = Object.values({ email, phone });
+		this.paymentForm.valid = !address;
+		this.contactsForm.valid = !email && !phone;
+		this.paymentForm.errors = Object.values({ address, payment });
+		this.contactsForm.errors = Object.values({ email, phone });
 	}
 
 	handleSendOrderDetails() {
 		const orderDetails = this._model.orderDetails;
 
-		this._model.sendOrder(orderDetails).then((data: ISuccessOrder) => {
-			this._events.emit('form:submit', { data });
-			this._modal.render({
-				content: this._view3.render({ ...data }),
-			});
-		});
-		this.handleClearCart();
+		if (orderDetails) {
+			this._AppAPI
+				.postOrder(orderDetails)
+				.then((data: ISuccessOrder) => {
+					this._events.emit('form:submit', { data });
+					this._modal.render({
+						content: this.successModal.render({ ...data }),
+					});
+					this.handleClearCart();
+				})
+				.catch((error) => {
+					console.log('Ошибка отправки заказа:', error);
+				});
+		}
 	}
 
 	handleClearCart() {

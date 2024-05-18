@@ -5,13 +5,11 @@ import { IEvents } from './base/events';
 export interface IAppModel {
 	products: IProduct[];
 	cart: IProductCart[];
-	AppAPI: IAppAPI;
 	orderDetails: IOrderData | null;
 
 	addToCart(product: IProductCart): void;
 	delFromCart(productId: string): void;
 	isInCart(id: string): boolean;
-	sendOrder(orderData: IOrderData): Promise<ISuccessOrder>;
 	clearCart(): void;
 	setOrderDetails(orderDetails: IOrderData): void;
 	clearOrderDetails(): void;
@@ -19,13 +17,11 @@ export interface IAppModel {
 
 export class AppModel implements IAppModel {
 	protected events: IEvents;
-	AppAPI: IAppAPI;
 	orderDetails: IOrderData | null = null;
 	products: IProduct[] = [];
 	cart: IProductCart[] = [];
 
-	constructor(AppAPI: IAppAPI, events: IEvents) {
-		this.AppAPI = AppAPI;
+	constructor(events: IEvents) {
 		this.events = events;
 		this.getCart();
 	}
@@ -68,9 +64,5 @@ export class AppModel implements IAppModel {
 	public clearCart(): void {
 		this.cart = [];
 		localStorage.setItem('cart', JSON.stringify(this.cart));
-	}
-
-	public sendOrder(orderData: IOrderData): Promise<ISuccessOrder> {
-		return this.AppAPI.postOrder(orderData).then((data: ISuccessOrder) => data);
 	}
 }
